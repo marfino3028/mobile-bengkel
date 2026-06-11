@@ -22,7 +22,7 @@ flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8000/api
 > - Emulator Android → `http://10.0.2.2:8000/api`
 > - iOS simulator / web → `http://localhost:8000/api`
 > - HP fisik → `http://<IP-komputer>:8000/api`
-> - Produksi → `https://api-bengkel-production.up.railway.app/api` atau `https://api.domainmu.com/api`
+> - Produksi → `https://apibengkel.hamztech.my.id/api`
 
 **Login** memakai akun seed API: `budi@mail.com` / `password` (atau daftar akun baru di app).
 
@@ -32,10 +32,10 @@ flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8000/api
 
 ```bash
 # APK (bagikan langsung)
-flutter build apk --release --dart-define=API_BASE_URL=https://api.domainmu.com/api
+flutter build apk --release --dart-define=API_BASE_URL=https://apibengkel.hamztech.my.id/api
 
 # App Bundle (upload Play Store)
-flutter build appbundle --release --dart-define=API_BASE_URL=https://api.domainmu.com/api
+flutter build appbundle --release --dart-define=API_BASE_URL=https://apibengkel.hamztech.my.id/api
 ```
 
 APK ada di `build/app/outputs/flutter-apk/app-release.apk`.
