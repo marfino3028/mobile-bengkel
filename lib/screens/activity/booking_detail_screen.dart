@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../models.dart';
 import '../../services/api_client.dart';
@@ -18,6 +19,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
   final _api = ApiClient.instance;
   Booking? _booking;
   bool _loading = true;
+  bool _paying = false;
 
   @override
   void initState() {
@@ -34,6 +36,22 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
       });
     } catch (_) {
       setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _payOnline() async {
+    setState(() => _paying = true);
+    try {
+      final res = await _api.dio.post('/bookings/${widget.code}/pay');
+      final url = res.data['redirect_url'] as String;
+      final ok = await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+      if (!ok && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Tidak bisa membuka halaman pembayaran.')));
+      }
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ApiClient.errorMessage(e))));
+    } finally {
+      if (mounted) setState(() => _paying = false);
     }
   }
 
@@ -110,8 +128,22 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                         ],
                       ),
                     ]),
-                    if (b.status == 'pending') ...[
+                    if (b.paymentStatus == 'unpaid' && b.status != 'cancelled' && b.grandTotal > 0) ...[
                       const SizedBox(height: 20),
+                      SizedBox(
+                        height: 50,
+                        child: ElevatedButton.icon(
+                          onPressed: _paying ? null : _payOnline,
+                          style: ElevatedButton.styleFrom(backgroundColor: AppColors.accent),
+                          icon: _paying
+                              ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
+                              : const Icon(Icons.credit_card),
+                          label: Text(_paying ? 'Memproses...' : 'Bayar Online'),
+                        ),
+                      ),
+                    ],
+                    if (b.status == 'pending') ...[
+                      const SizedBox(height: 12),
                       OutlinedButton.icon(
                         onPressed: _cancel,
                         style: OutlinedButton.styleFrom(foregroundColor: AppColors.danger, side: const BorderSide(color: AppColors.danger)),
